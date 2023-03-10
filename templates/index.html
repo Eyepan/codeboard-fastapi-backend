@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', path='/main.css')}}" />
+    <!-- <link rel="stylesheet" href="{{ url_for('static', path='/main.css')}}" /> -->
     <title>CodeBoard</title>
   </head>
   <body>
-    <div class="text-5xl">this is some example text</div>
+    <div>{{result | safe}}</div>
   </body>
 </html>
