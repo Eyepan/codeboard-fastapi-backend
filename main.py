@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from database import initDB, connection
-from users import User, UserIn, get_user_by_username, get_user_by_id, insert_user
+from users.users import User, UserIn, get_user_by_username, get_user_by_id, insert_user
 
 load_dotenv()
 app = FastAPI()
