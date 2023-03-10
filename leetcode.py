@@ -51,8 +51,6 @@ async def main():
     if (response.status_code != 200):
         print("something went wrong")
         raise 'status code not 200'
-    with open(f'response_{contest_code}.json', 'w') as f:
-        f.write(json.dumps(response.json(), indent=4))
 
     total_requests_to_make = math.ceil(
         response.json()['user_num'] / len(response.json()['total_rank']))
@@ -72,10 +70,7 @@ async def main():
 
     total_ranks = sum(results, [])
 
-    with open(f"leetcode_{contest_code}.json", "w") as f:
-        f.write(json.dumps(total_ranks, indent=4))
-
-    df = pd.read_json(f"leetcode_{contest_code}.json")
+    df = pd.read_json(json.dumps(total_ranks))
 
     # reduce to simpler columns
     df = df[['username', 'rank', 'score', 'finish_time']]
