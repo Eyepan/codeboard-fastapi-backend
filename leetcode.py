@@ -13,28 +13,14 @@ contest_code = sys.argv[1]
 url = f"https://leetcode.com/contest/api/ranking/{contest_code}/"
 params = {
     "pagination": 1,
-    "region": "global"
-}
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0",
-    "Accept": "application/json, text/javascript, */*; q=0.01",
-    "Accept-Language": "en-US,en;q=0.5",
-    "X-NewRelic-ID": "UAQDVFVRGwEAXVlbBAg=",
-    "Content-Type": "application/json",
-    "X-Requested-With": "XMLHttpRequest",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "Referer": f"https://leetcode.com/contest/{contest_code}/ranking/"
 }
 
 
 async def make_request(i, pbar):
     params = {
         "pagination": i + 1,
-        "region": "global"
     }
-    async with aiohttp.ClientSession(headers=headers) as session:
+    async with aiohttp.ClientSession() as session:
         async with session.get(url, params=params) as response:
             if response.status != 200:
                 print(f"Response failed while requesting page {i + 1}")
@@ -46,7 +32,7 @@ async def make_request(i, pbar):
 
 async def main():
     print(f"Fetching data for {contest_code}")
-    response = requests.get(url, params=params, headers=headers)
+    response = requests.get(url, params=params)
 
     if (response.status_code != 200):
         print("something went wrong")
