@@ -8,15 +8,9 @@ import aiohttp
 import sys
 from tqdm import tqdm
 
-contest_code = sys.argv[1]
 
-url = f"https://leetcode.com/contest/api/ranking/{contest_code}/"
-params = {
-    "pagination": 1,
-}
-
-
-async def make_request(i, pbar):
+async def make_request(contest_code, i, pbar):
+    url = f"https://leetcode.com/contest/api/ranking/{contest_code}/"
     params = {
         "pagination": i + 1,
     }
@@ -30,7 +24,11 @@ async def make_request(i, pbar):
             return data
 
 
-async def glc():
+async def glc(contest_code: str):
+    url = f"https://leetcode.com/contest/api/ranking/{contest_code}/"
+    params = {
+        "pagination": 1,
+    }
     print(f"Fetching data for {contest_code}")
     response = requests.get(url, params=params)
 
@@ -50,7 +48,8 @@ async def glc():
     with tqdm(total=total_requests_to_make) as pbar:
         tasks = []
         for i in range(total_requests_to_make):
-            tasks.append(asyncio.ensure_future(make_request(i, pbar)))
+            tasks.append(asyncio.ensure_future(
+                make_request(contest_code, i, pbar)))
 
         results = await asyncio.gather(*tasks)
 
@@ -58,7 +57,6 @@ async def glc():
 
     df = pd.read_json(json.dumps(total_ranks))
 
-    # reduce to simpler columns
     df = df[['username', 'rank', 'score', 'finish_time']]
     df.to_sql(f'leetcode-{contest_code}', con=sqlite3.connect(
         "db.sqlite3"), if_exists="replace")
@@ -66,8 +64,8 @@ async def glc():
     print(f"Done for {contest_code}!")
 
 
-def get_leetcode():
-    asyncio.get_event_loop().run_until_complete(glc())
+def get_leetcode(contest_code: str):
+    asyncio.get_event_loop().run_until_complete(glc(contest_code))
 
 
-get_leetcode()
+get_leetcode('weekly-contest-229')
