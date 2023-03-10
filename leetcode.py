@@ -30,7 +30,7 @@ async def make_request(i, pbar):
             return data
 
 
-async def main():
+async def glc():
     print(f"Fetching data for {contest_code}")
     response = requests.get(url, params=params)
 
@@ -66,5 +66,8 @@ async def main():
     print(f"Done for {contest_code}!")
 
 
-if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main())
+def get_leetcode():
+    asyncio.get_event_loop().run_until_complete(glc())
+
+
+get_leetcode()
