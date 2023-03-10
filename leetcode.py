@@ -45,7 +45,7 @@ async def make_request(i, pbar):
 
 
 async def main():
-    print(f"Fetching data for contest {contest_code}")
+    print(f"Fetching data for {contest_code}")
     response = requests.get(url, params=params, headers=headers)
 
     if (response.status_code != 200):
@@ -59,7 +59,7 @@ async def main():
     total_ranks = []
 
     print(
-        f"Getting {total_requests_to_make} pages of data for contest {contest_code} with {response.json()['user_num']} users")
+        f"Getting {total_requests_to_make} pages of data for {contest_code} with {response.json()['user_num']} participants")
 
     with tqdm(total=total_requests_to_make) as pbar:
         tasks = []
@@ -77,7 +77,7 @@ async def main():
     df.to_sql(f'leetcode-{contest_code}', con=sqlite3.connect(
         "db.sqlite3"), if_exists="replace")
 
-    print("Done!")
+    print(f"Done for {contest_code}!")
 
 
 if __name__ == "__main__":
