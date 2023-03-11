@@ -16,15 +16,3 @@ class Student(BaseModel):
 
     def get_student(self):
         return super().__dict__
-
-
-# a sample json body for a request containing a student
-# {
-#     "id": 1,
-#     "name": "John Doe",
-#     "dept": "CSE",
-#     "year": 2,
-#     "leetcode_username": "johndoe",
-#     "codechef_username": "johndoe",
-#     "codeforces_username": "johndoe"
-# }

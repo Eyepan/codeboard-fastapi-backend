@@ -34,7 +34,9 @@ def update_student(student: Student):
 def delete_student(student: Student):
     conn = connection()
     cursor = conn.cursor()
-    # TODO: raise exception if user doesn't exist
+    cursor.execute('SELECT * FROM students WHERE id = ?', (student.id,))
+    if cursor.fetchone() is None:
+        raise HTTPException(status_code=400, detail="Student doesn't exist")
     cursor.execute('DELETE FROM students WHERE id = ?', (student.id,))
     conn.commit()
     conn.close()
