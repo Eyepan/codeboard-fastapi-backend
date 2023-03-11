@@ -1,16 +1,16 @@
+import sys
 import json
 import requests
 import math
-from database import connection
 import threading
 import pandas as pd
 import queue
 from tqdm import tqdm
-import sys
+
+from database import connection
 
 
 def make_request(contest_code, i, pbar, results_queue):
-
     url = f"https://leetcode.com/contest/api/ranking/{contest_code}/"
     params = {
         "pagination": i + 1,
@@ -73,5 +73,6 @@ def get_leetcode_user(username: str):
 if __name__ == '__main__':
     if sys.argv[1] == 'contest':
         print(get_leetcode_contest(sys.argv[2]))
+        pass
     elif sys.argv[1] == 'user':
         print(get_leetcode_user(sys.argv[2]))

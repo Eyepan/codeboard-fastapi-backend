@@ -1,26 +1,24 @@
-import pandas as pd
-from fastapi import FastAPI, Request
-import sqlite3
+from routes_students import router as students_router
+from fastapi import FastAPI
 from leetcode import get_leetcode_contest, get_leetcode_user
-import nest_asyncio
-nest_asyncio.apply()
+from database import initDB
+
 
 app = FastAPI()
-conn = sqlite3.connect('db.sqlite3')
-cursor = conn.cursor()
+
+app.include_router(students_router)
 
 
 @app.on_event("startup")
-def startup():
-    # get_leetcode('weekly-contest-300')
-    pass
+async def startup():
+    initDB()
 
 
-@app.get("/leetcode/contest/{contest_code}")
-def index(contest_code: str):
+@app.get("/api/leetcode/contest/{contest_code}")
+async def index(contest_code: str):
     return get_leetcode_contest(contest_code)
 
 
-@app.get("/leetcode/user/{username}")
-def get_user(username: str):
+@app.get("/api/leetcode/user/{username}")
+async def get_user(username: str):
     return get_leetcode_user(username)
