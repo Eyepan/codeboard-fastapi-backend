@@ -1,16 +1,11 @@
 import pandas as pd
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 import sqlite3
-from leetcode import get_leetcode
+from leetcode import get_leetcode_contest, get_leetcode_user
 import nest_asyncio
 nest_asyncio.apply()
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
-app.mount('/static', StaticFiles(directory='static'), name='static')
 conn = sqlite3.connect('db.sqlite3')
 cursor = conn.cursor()
 
@@ -21,7 +16,11 @@ def startup():
     pass
 
 
-@app.get("/", response_class=HTMLResponse)
-def index(request: Request):
-    result = pd.read_csv('leetcode_weekly-contest-300.csv').to_html()
-    return templates.TemplateResponse("index.html", {"request": request, "result": result})
+@app.get("/leetcode/contest/{contest_code}")
+def index(contest_code: str):
+    return get_leetcode_contest(contest_code)
+
+
+@app.get("/leetcode/user/{username}")
+def get_user(username: str):
+    return get_leetcode_user(username)

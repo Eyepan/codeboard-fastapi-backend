@@ -1,9 +1,15 @@
 :root {
-  --bg-color: #000;
-  --text-color: #fff;
+  --yinmn-blue: #274c77;
+  --battleship-gray: #8b8c89;
+  --antiflash-white: #e7ecef;
+  --air-superiority-blue: #6096ba;
+  --uranian-blue: #a3cef1;
+
+  --bg-color: var(--yinmn-blue);
+  --text-color: var(--antiflash-white);
   @media (prefers-color-scheme: dark) {
-    --bg-color: #f5f5f5;
-    --text-color: #000;
+    --bg-color: var(--uranian-blue);
+    --text-color: var(--antiflash-white);
   }
 }
 
