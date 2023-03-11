@@ -9,10 +9,10 @@ def initDB():
     conn = connection()
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS students(
-        id INTEGER PRIMARY KEY NOT NULL, 
+        id TEXT PRIMARY KEY NOT NULL, 
         name TEXT NOT NULL, 
         dept TEXT NOT NULL, 
-        year INTEGER NOT NULL, 
+        batch INTEGER NOT NULL, 
         leetcode_username TEXT UNIQUE NOT NULL, 
         codechef_username TEXT UNIQUE NOT NULL, 
         codeforces_username TEXT UNIQUE NOT NULL
