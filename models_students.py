@@ -32,3 +32,21 @@ class InStudent(BaseModel):
     leetcode_username: str
     codechef_username: str
     codeforces_username: str
+
+
+class StudentLeetCode(BaseModel):
+    status: str
+    message: str
+    totalSolved: int
+    totalQuestions: int
+    easySolved: int
+    totalEasy: int
+    mediumSolved: int
+    totalMedium: int
+    hardSolved: int
+    totalHard: int
+    acceptanceRate: float
+    ranking: int
+    contributionPoints: int
+    reputation: int
+    submissionCalendar: dict

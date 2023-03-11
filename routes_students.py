@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from leetcode import get_leetcode_user
 from models_students import Student, InStudent
 from sqlite3 import IntegrityError
 from fastapi import HTTPException
@@ -12,15 +13,23 @@ router = APIRouter(prefix='/api/students')
 
 
 @router.get("")
-async def get_students():
+async def get_students() -> list[Student]:
     conn = connection()
     df = pd.read_sql('select * from students', conn)
     conn.close()
     return json.loads(df.to_json(orient='records'))
 
 
+@router.get("/student/{id}")
+async def get_student_by_id(id: str) -> Student:
+    conn = connection()
+    df = pd.read_sql('select * from students where id = ?', conn, params=(id,))
+    conn.close()
+    return json.loads(df.to_json(orient='records'))[0]
+
+
 @router.get("/{batch}")
-async def get_students_of_batch(batch: str):
+async def get_students_of_batch(batch: str) -> list[Student]:
     conn = connection()
     df = pd.read_sql('select * from students where batch = ?',
                      conn, params=(batch,))

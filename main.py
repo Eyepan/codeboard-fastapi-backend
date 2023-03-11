@@ -1,3 +1,4 @@
+from models_students import StudentLeetCode
 from routes_students import router as students_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,5 +31,5 @@ async def index(contest_code: str):
 
 
 @app.get("/api/leetcode/user/{username}")
-async def get_user(username: str):
+async def get_user(username: str) -> StudentLeetCode:
     return get_leetcode_user(username)
