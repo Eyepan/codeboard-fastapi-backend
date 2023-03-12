@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 
 class ProblemsCount(BaseModel):
@@ -12,7 +13,7 @@ class ProblemsPercentage(BaseModel):
 
 
 class SubmitStatsGlobal(BaseModel):
-    acSubmissionNum: list[ProblemsCount]
+    acSubmissionNum: List[ProblemsCount]
 
 
 class Profile(BaseModel):
@@ -22,12 +23,12 @@ class Profile(BaseModel):
 class MatchedUser(BaseModel):
     username: str
     profile: Profile
-    problemsSolvedBeatsStats: list[ProblemsPercentage]
+    problemsSolvedBeatsStats: List[ProblemsPercentage]
     submitStatsGlobal: SubmitStatsGlobal
 
 
 class StudentLeetCodeData(BaseModel):
-    allQuestionsCount: list[ProblemsCount]
+    allQuestionsCount: List[ProblemsCount]
     matchedUser: MatchedUser
 
     # df = df[['username', 'rank', 'score', 'finish_time']]
@@ -43,3 +44,8 @@ class ContestResult(BaseModel):
     codechef_username: str
     codeforces_username: str
 # username  rank  score  name dept  batch codechef_username codeforces_username
+
+
+# File "/app/src/models/models_leetcode.py", line 15, in SubmitStatsGlobal
+# acSubmissionNum: List[ProblemsCount]
+# TypeError: 'type' object is not subscriptable
