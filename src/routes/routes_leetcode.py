@@ -5,7 +5,7 @@ import threading
 
 import pandas as pd
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
 
 from ..models.models_leetcode import StudentLeetCodeData
@@ -100,5 +100,8 @@ async def get_user(username: str) -> StudentLeetCodeData:
 
     response = requests.post("https://leetcode.com/graphql/",
                              json=data)
+    if 'errors' in response.text:
+        raise HTTPException(
+            404, f"Student {username} doesn't exist on leetcode")
     response.raise_for_status()
     return response.json()['data']

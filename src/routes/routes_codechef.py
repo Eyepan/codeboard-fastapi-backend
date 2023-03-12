@@ -17,8 +17,8 @@ headers = {
 }
 
 
-def make_request(comp, i, headers, pbar, results_queue):
-    url = f"https://www.codechef.com/api/rankings/{comp}"
+def make_request(contest_code, i, headers, pbar, results_queue):
+    url = f"https://www.codechef.com/api/rankings/{contest_code}"
     params = {
         "itemsPerPage": 100,
         "order": "asc",
@@ -32,42 +32,41 @@ def make_request(comp, i, headers, pbar, results_queue):
     pbar.update(1)
 
 
-@router.get("/contest/{comp}")
-async def index(comp: str):
-
+@router.get("/contest/{contest_code}")
+async def index(contest_code: str):
     conn = connection()
     try:
-        df = pd.read_sql(f'select * from "codechef-{comp}"', conn)
+        df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
         conn.close()
         return json.loads(df.to_json(orient='records'))
     except:
-        print(f"Fetching data for {comp}")
+        print(f"Fetching data for {contest_code}")
         response = requests.get(
-            url=f'https://www.codechef.com/api/rankings/{comp}?itemsPerPage=100&order=asc&page=1&sortBy=rank', headers=headers)
+            url=f'https://www.codechef.com/api/rankings/{contest_code}?itemsPerPage=100&order=asc&page=1&sortBy=rank', headers=headers)
         if response.status_code != 200:
             print("something went wrong")
             exit()
-        number_of_pages = response.json()['availablePages']
-        print(f"There are {number_of_pages} available")
-        # limit to 12 requests for demonstration purposes
-        total_requests_to_make = min(number_of_pages, 12)
+        total_requests_to_make = response.json()['availablePages']
+        print(
+            f"Getting {total_requests_to_make} pages of data for {contest_code} with {response.json()['totalItems']} participants")
+
         total_data = []
         with tqdm(total=total_requests_to_make) as pbar:
             results_queue = queue.Queue()
             threads = []
             for i in range(1, total_requests_to_make + 1):
                 thread = threading.Thread(target=make_request, args=(
-                    comp, i, headers, pbar, results_queue))
+                    contest_code, i, headers, pbar, results_queue))
                 threads.append(thread)
                 thread.start()
             for thread in threads:
                 thread.join()
             while not results_queue.empty():
                 total_data.extend(results_queue.get())
-        df.to_json('response.json', orient='records')
+        df = pd.read_json(json.dumps(total_data))
         df = df[['rank', 'user_handle', 'score', 'total_time']]
-        df.sort_values(by='rank')
-        df.to_sql(f'codechef-{comp}', conn,
+        df = df.sort_values(by='rank')
+        df.to_sql(f'codechef-{contest_code}', conn,
                   if_exists='replace', index=False)
         conn.close()
         return json.loads(df.to_json(orient='records'))
