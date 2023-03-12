@@ -33,7 +33,7 @@ def make_request(contest_code, i, headers, pbar, results_queue):
 
 
 @router.get("/contest/{contest_code}")
-async def index(contest_code: str):
+async def get_contest(contest_code: str):
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)

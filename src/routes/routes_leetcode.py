@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
+from typing import List
 
 from ..models.models_leetcode import StudentLeetCodeData, ContestResult
 from ..database import connection
@@ -27,7 +28,7 @@ def make_request(contest_code, i, pbar, results_queue):
 
 
 @router.get("/contest/{contest_code}")
-async def get_contest_details(contest_code: str) -> list[ContestResult]:
+async def get_contest_details(contest_code: str) -> List[ContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
