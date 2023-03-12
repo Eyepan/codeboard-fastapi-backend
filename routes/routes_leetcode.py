@@ -93,7 +93,7 @@ async def get_user(username: str) -> StudentLeetCodeData:
                 }
             }
             """,
-        "variables": {"username": "pan-iyappan"}
+        "variables": {"username": f"{username}"}
     }
 
     response = requests.post("https://leetcode.com/graphql/",

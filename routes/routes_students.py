@@ -24,6 +24,8 @@ async def get_student_by_id(id: str) -> Student:
     conn = connection()
     df = pd.read_sql('select * from students where id = ?', conn, params=(id,))
     conn.close()
+    if df.empty:
+        raise HTTPException(status_code=404, detail='student not found')
     return json.loads(df.to_json(orient='records'))[0]
 
 
