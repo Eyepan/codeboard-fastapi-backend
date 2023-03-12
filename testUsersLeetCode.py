@@ -25,22 +25,10 @@ import requests
 
 # write the above as a python requests
 import requests
+import sys
 
-headers = {
-}
+username = sys.argv[1]
 
-# required
-# totalSolved
-# totalQuesions
-# easySolved
-# totalEasy
-# mediumSolved
-# totalMedium
-# hardSolved
-# totalHard
-# acceptanceRate
-# ranking
-# submissionCalendar
 data = {
     "query": """
         query APIReq($username: String!) {
@@ -66,11 +54,7 @@ data = {
             }
         }
         """,
-    "variables": {"username": "pan-iyappan"}
+    "variables": {"username": f"{username}"}
 }
 
-response = requests.post("https://leetcode.com/graphql/",
-                         headers=headers, json=data)
-
-with open("answer.json", 'w') as f:
-    f.write(response.text)
+response = requests.post("https://leetcode.com/graphql/", json=data)
