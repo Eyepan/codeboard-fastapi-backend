@@ -1,5 +1,4 @@
 import requests
-import threading
 import random
 import string
 import concurrent.futures
@@ -44,7 +43,7 @@ data = [
                      "user8425Qa", "madhoora_codechef", "madhoora_codeforces")
 ]
 
-url = "http://localhost:8000/api/students"
+url = "https://codeboard-fastapi-backend-production.up.railway.app/api/students"
 success = True
 
 
