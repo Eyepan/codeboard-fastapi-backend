@@ -8,7 +8,7 @@ import requests
 from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
 
-from ..models.models_leetcode import StudentLeetCodeData
+from ..models.models_leetcode import StudentLeetCodeData, ContestResult
 from ..database import connection
 
 router = APIRouter(prefix='/api/leetcode')
@@ -27,7 +27,7 @@ def make_request(contest_code, i, pbar, results_queue):
 
 
 @router.get("/contest/{contest_code}")
-async def index(contest_code: str):
+async def get_contest_details(contest_code: str) -> list[ContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
@@ -61,7 +61,8 @@ async def index(contest_code: str):
             while not results_queue.empty():
                 total_ranks.extend(results_queue.get())
         df = pd.read_json(json.dumps(total_ranks))
-        df = df[['username', 'rank', 'score', 'finish_time']]
+        df = df[['username', 'rank', 'score']]
+        df = df.sort_values(by='rank')
         df.to_sql(f'leetcode-{contest_code}', conn,
                   if_exists='replace', index=False)
         conn.close()

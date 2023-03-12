@@ -29,3 +29,11 @@ class MatchedUser(BaseModel):
 class StudentLeetCodeData(BaseModel):
     allQuestionsCount: list[ProblemsCount]
     matchedUser: MatchedUser
+
+    # df = df[['username', 'rank', 'score', 'finish_time']]
+
+
+class ContestResult(BaseModel):
+    username: str
+    rank: int
+    score: int
