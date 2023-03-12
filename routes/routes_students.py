@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from leetcode import get_leetcode_user
 from models.models_students import Student, InStudent
 from sqlite3 import IntegrityError
 from fastapi import HTTPException

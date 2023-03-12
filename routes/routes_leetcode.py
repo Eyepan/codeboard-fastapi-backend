@@ -1,5 +1,5 @@
-import sys
 import json
+from fastapi import APIRouter
 import requests
 import math
 import threading
@@ -8,6 +8,8 @@ import queue
 from tqdm import tqdm
 from database import connection
 from models.models_leetcode import StudentLeetCodeData
+
+router = APIRouter(prefix='/api/leetcode')
 
 
 def make_request(contest_code, i, pbar, results_queue):
@@ -22,7 +24,8 @@ def make_request(contest_code, i, pbar, results_queue):
     pbar.update(1)
 
 
-def get_leetcode_contest(contest_code: str):
+@router.get("/contest/{contest_code}")
+async def index(contest_code: str):
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
@@ -63,7 +66,8 @@ def get_leetcode_contest(contest_code: str):
         return df.to_json()
 
 
-def get_leetcode_user(username: str) -> StudentLeetCodeData:
+@router.get("/user/{username}")
+async def get_user(username: str) -> StudentLeetCodeData:
     data = {
         "query": """
             query APIReq($username: String!) {
@@ -76,9 +80,9 @@ def get_leetcode_user(username: str) -> StudentLeetCodeData:
                     profile {
                         ranking
                     }
-                    problemsSolvedBeatsStats {      
-                        difficulty      
-                        percentage    
+                    problemsSolvedBeatsStats {
+                        difficulty
+                        percentage
                     }
                     submitStatsGlobal {
                         acSubmissionNum {
@@ -95,12 +99,4 @@ def get_leetcode_user(username: str) -> StudentLeetCodeData:
     response = requests.post("https://leetcode.com/graphql/",
                              json=data)
     response.raise_for_status()
-    return response.json()
-
-
-if __name__ == '__main__':
-    if sys.argv[1] == 'contest':
-        print(get_leetcode_contest(sys.argv[2]))
-        pass
-    elif sys.argv[1] == 'user':
-        print(get_leetcode_user(sys.argv[2]))
+    return response.json()['data']
