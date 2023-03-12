@@ -1,8 +1,9 @@
 from models.models_leetcode import StudentLeetCodeData
 from routes.routes_students import router as students_router
+from routes.routes_leetcode import router as leetcode_router
+from routes.routes_codechef import router as codechef_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.routes_leetcode import router as leetcode_router
 from database import initDB
 
 app = FastAPI()
@@ -19,8 +20,14 @@ app.add_middleware(
 
 app.include_router(students_router)
 app.include_router(leetcode_router)
+app.include_router(codechef_router)
 
 
 @app.on_event("startup")
 async def startup():
     initDB()
+
+
+@app.get("/")
+async def hello():
+    return "hi there"

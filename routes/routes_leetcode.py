@@ -30,7 +30,7 @@ async def index(contest_code: str):
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
         conn.close()
-        return df.to_json()
+        return json.loads(df.to_json(orient='records'))
     except:
         url = f"https://leetcode.com/contest/api/ranking/{contest_code}/"
         params = {
@@ -63,7 +63,7 @@ async def index(contest_code: str):
         df.to_sql(f'leetcode-{contest_code}', conn,
                   if_exists='replace', index=False)
         conn.close()
-        return df.to_json()
+        return json.loads(df.to_json(orient='records'))
 
 
 @router.get("/user/{username}")
