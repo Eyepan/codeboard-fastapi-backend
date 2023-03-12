@@ -8,8 +8,8 @@ import requests
 from fastapi import APIRouter
 from tqdm import tqdm
 
-from models.models_leetcode import StudentLeetCodeData
-from src.database import connection
+from ..models.models_leetcode import StudentLeetCodeData
+from ..database import connection
 
 router = APIRouter(prefix='/api/leetcode')
 

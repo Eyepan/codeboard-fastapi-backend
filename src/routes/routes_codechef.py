@@ -7,7 +7,7 @@ import requests
 from fastapi import APIRouter
 from tqdm import tqdm
 
-from src.database import connection
+from ..database import connection
 
 router = APIRouter(prefix='/api/codechef')
 

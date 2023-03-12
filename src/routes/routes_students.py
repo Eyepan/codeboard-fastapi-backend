@@ -5,8 +5,8 @@ from sqlite3 import IntegrityError
 import pandas as pd
 from fastapi import APIRouter, HTTPException
 
-from models.models_students import InStudent, Student
-from src.database import connection
+from ..models.models_students import InStudent, Student
+from ..database import connection
 
 router = APIRouter(prefix='/api/students')
 
