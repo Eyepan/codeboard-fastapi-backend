@@ -1,10 +1,10 @@
-from src.models.models_leetcode import StudentLeetCodeData
-from src.routes.routes_students import router as students_router
-from src.routes.routes_leetcode import router as leetcode_router
-from src.routes.routes_codechef import router as codechef_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from src.database import initDB
+from src.routes.routes_codechef import router as codechef_router
+from src.routes.routes_leetcode import router as leetcode_router
+from src.routes.routes_students import router as students_router
 
 app = FastAPI()
 

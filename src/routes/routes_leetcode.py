@@ -1,13 +1,15 @@
 import json
-from fastapi import APIRouter
-import requests
 import math
-import threading
-import pandas as pd
 import queue
+import threading
+
+import pandas as pd
+import requests
+from fastapi import APIRouter
 from tqdm import tqdm
-from src.database import connection
+
 from models.models_leetcode import StudentLeetCodeData
+from src.database import connection
 
 router = APIRouter(prefix='/api/leetcode')
 

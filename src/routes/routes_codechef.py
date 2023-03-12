@@ -1,11 +1,13 @@
 import json
-from fastapi import APIRouter
-from src.database import connection
-import threading
 import queue
-import requests
+import threading
+
 import pandas as pd
+import requests
+from fastapi import APIRouter
 from tqdm import tqdm
+
+from src.database import connection
 
 router = APIRouter(prefix='/api/codechef')
 
