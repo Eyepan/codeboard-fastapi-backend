@@ -37,3 +37,9 @@ class ContestResult(BaseModel):
     username: str
     rank: int
     score: int
+    name: str
+    dept: str
+    batch: str
+    codechef_username: str
+    codeforces_username: str
+# username  rank  score  name dept  batch codechef_username codeforces_username

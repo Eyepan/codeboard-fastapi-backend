@@ -31,8 +31,6 @@ async def get_contest_details(contest_code: str) -> list[ContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
-        conn.close()
-        return json.loads(df.to_json(orient='records'))
     except:
         url = f"https://leetcode.com/contest/api/ranking/{contest_code}/"
         params = {
@@ -40,9 +38,8 @@ async def get_contest_details(contest_code: str) -> list[ContestResult]:
         }
         print(f"Fetching data for {contest_code}")
         response = requests.get(url, params=params)
-        if response.status_code != 200:
-            print("something went wrong")
-            exit()
+        if response.status_code == 404:
+            raise HTTPException(404, "Contest not found")
         total_requests_to_make = math.ceil(
             response.json()['user_num'] / len(response.json()['total_rank']))
         total_ranks = []
@@ -61,12 +58,18 @@ async def get_contest_details(contest_code: str) -> list[ContestResult]:
             while not results_queue.empty():
                 total_ranks.extend(results_queue.get())
         df = pd.read_json(json.dumps(total_ranks))
-        df = df[['username', 'rank', 'score']]
-        df = df.sort_values(by='rank')
-        df.to_sql(f'leetcode-{contest_code}', conn,
-                  if_exists='replace', index=False)
-        conn.close()
-        return json.loads(df.to_json(orient='records'))
+
+    df = df[['username', 'rank', 'score']]
+    df = df.sort_values(by='rank')
+    df.to_sql(f'leetcode-{contest_code}', conn,
+              if_exists='replace', index=False)
+    students = pd.read_sql('select * from students', conn)
+    conn.close()
+    merged_df = pd.merge(df, students, left_on='username',
+                         right_on='leetcode_username', how='inner')
+    df = merged_df[merged_df['leetcode_username'].notnull()]
+    df = df.drop('leetcode_username', axis=1)
+    return json.loads(df.to_json(orient='records'))
 
 
 @router.get("/user/{username}")
