@@ -1,6 +1,6 @@
 import json
 from fastapi import APIRouter
-from database import connection
+from src.database import connection
 import threading
 import queue
 import requests

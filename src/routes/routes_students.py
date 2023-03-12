@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from models.models_students import Student, InStudent
 from sqlite3 import IntegrityError
 from fastapi import HTTPException
-from database import connection
+from src.database import connection
 import pandas as pd
 from models.models_students import Student, InStudent
 import json

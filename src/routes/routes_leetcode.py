@@ -6,7 +6,7 @@ import threading
 import pandas as pd
 import queue
 from tqdm import tqdm
-from database import connection
+from src.database import connection
 from models.models_leetcode import StudentLeetCodeData
 
 router = APIRouter(prefix='/api/leetcode')
