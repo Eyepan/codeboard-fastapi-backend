@@ -37,8 +37,6 @@ async def index(contest_code: str):
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
-        conn.close()
-        return json.loads(df.to_json(orient='records'))
     except:
         print(f"Fetching data for {contest_code}")
         response = requests.get(
@@ -64,9 +62,15 @@ async def index(contest_code: str):
             while not results_queue.empty():
                 total_data.extend(results_queue.get())
         df = pd.read_json(json.dumps(total_data))
-        df = df[['rank', 'user_handle', 'score', 'total_time']]
-        df = df.sort_values(by='rank')
-        df.to_sql(f'codechef-{contest_code}', conn,
-                  if_exists='replace', index=False)
-        conn.close()
-        return json.loads(df.to_json(orient='records'))
+    df = df[['rank', 'user_handle', 'score', 'total_time']]
+    df = df.sort_values(by='rank')
+    df.to_sql(f'codechef-{contest_code}', conn,
+              if_exists='replace', index=False)
+    students = pd.read_sql('select * from students', conn)
+    conn.close()
+    merged_df = pd.merge(df, students, left_on='user_handle',
+                         right_on='codechef_username', how='inner')
+    df = merged_df[merged_df['codechef_username'].notnull()]
+    df = df.drop('codechef_username', axis=1)
+    df.rename(columns={'user_handle': 'username'}, inplace=True)
+    return json.loads(df.to_json(orient='records'))
