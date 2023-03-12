@@ -2,15 +2,15 @@ import json
 import math
 import queue
 import threading
+from typing import List
 
 import pandas as pd
 import requests
 from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
-from typing import List
 
-from ..models.models_leetcode import StudentLeetCodeData, ContestResult
 from ..database import connection
+from ..models.models_leetcode import ContestResult, StudentLeetCodeData
 
 router = APIRouter(prefix='/api/leetcode')
 

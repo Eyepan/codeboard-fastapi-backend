@@ -1,18 +1,19 @@
 import json
 import uuid
 from sqlite3 import IntegrityError
+from typing import *
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException
 
-from ..models.models_students import InStudent, Student
 from ..database import connection
+from ..models.models_students import InStudent, Student
 
 router = APIRouter(prefix='/api/students')
 
 
 @router.get("")
-async def get_students() -> list[Student]:
+async def get_students() -> List[Student]:
     conn = connection()
     df = pd.read_sql('select * from students', conn)
     conn.close()
@@ -30,7 +31,7 @@ async def get_student_by_id(id: str) -> Student:
 
 
 @router.get("/{batch}")
-async def get_students_of_batch(batch: str) -> list[Student]:
+async def get_students_of_batch(batch: str) -> List[Student]:
     conn = connection()
     df = pd.read_sql('select * from students where batch = ?',
                      conn, params=(batch,))
