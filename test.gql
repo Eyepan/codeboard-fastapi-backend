@@ -1,0 +1,31 @@
+query APIReq($username: String!) {
+	allQuestionsCount {
+		difficulty
+		count
+	}
+	matchedUser(username: $username) {
+		username
+		profile {
+			ranking
+			reputation
+		}
+		submitStatsGlobal {
+			acSubmissionNum {
+				difficulty
+				count
+			}
+		}
+	}
+}
+
+# totalSolved
+# totalQuesions
+# easySolved
+# totalEasy
+# mediumSolved
+# totalMedium
+# hardSolved
+# totalHard
+# acceptanceRate
+# ranking
+# submissionCalendar

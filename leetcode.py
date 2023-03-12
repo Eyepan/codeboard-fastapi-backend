@@ -6,8 +6,8 @@ import threading
 import pandas as pd
 import queue
 from tqdm import tqdm
-
 from database import connection
+from models.models_leetcode import StudentLeetCodeData
 
 
 def make_request(contest_code, i, pbar, results_queue):
@@ -63,9 +63,37 @@ def get_leetcode_contest(contest_code: str):
         return df.to_json()
 
 
-def get_leetcode_user(username: str):
-    url = f'https://leetcode-stats-api.herokuapp.com/{username}/'
-    response = requests.get(url)
+def get_leetcode_user(username: str) -> StudentLeetCodeData:
+    data = {
+        "query": """
+            query APIReq($username: String!) {
+                allQuestionsCount {
+                    difficulty
+                    count
+                }
+                matchedUser(username: $username) {
+                    username
+                    profile {
+                        ranking
+                    }
+                    problemsSolvedBeatsStats {      
+                        difficulty      
+                        percentage    
+                    }
+                    submitStatsGlobal {
+                        acSubmissionNum {
+                            difficulty
+                            count
+                        }
+                    }
+                }
+            }
+            """,
+        "variables": {"username": "pan-iyappan"}
+    }
+
+    response = requests.post("https://leetcode.com/graphql/",
+                             json=data)
     response.raise_for_status()
     return response.json()
 

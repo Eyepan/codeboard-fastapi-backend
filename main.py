@@ -1,4 +1,4 @@
-from models_students import StudentLeetCode
+from models.models_leetcode import StudentLeetCodeData
 from routes_students import router as students_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,5 +31,9 @@ async def index(contest_code: str):
 
 
 @app.get("/api/leetcode/user/{username}")
-async def get_user(username: str) -> StudentLeetCode:
-    return get_leetcode_user(username)
+async def get_user(username: str):
+    data = get_leetcode_user(username)
+    # write to file
+    with open("content.json", 'w') as f:
+        f.write(data.__str__())
+    return data
