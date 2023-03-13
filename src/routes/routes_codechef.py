@@ -1,11 +1,14 @@
 import json
 import queue
 import threading
+from typing import List
 
 import pandas as pd
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
+
+from ..models.models_leetcode import ContestResult, FullContestResult
 
 from ..database import connection
 
@@ -33,7 +36,142 @@ def make_request(contest_code, i, headers, pbar, results_queue):
 
 
 @router.get("/contest/{contest_code}")
-async def get_contest(contest_code: str):
+async def get_contest_results(contest_code: str) -> List[ContestResult]:
+    conn = connection()
+    try:
+        df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
+    except:
+        print(f"Fetching data for {contest_code}")
+        response = requests.get(
+            url=f'https://www.codechef.com/api/rankings/{contest_code}?itemsPerPage=100&order=asc&page=1&sortBy=rank', headers=headers)
+        if response.status_code != 200:
+            print("something went wrong")
+            exit()
+        if response.status_code == 404 or response.json()['availablePages'] == 0:
+            raise HTTPException(status_code=404, detail="Contest not found")
+        total_requests_to_make = response.json()['availablePages']
+        print(
+            f"Getting {total_requests_to_make} pages of data for {contest_code} with {response.json()['totalItems']} participants")
+        total_data = []
+        with tqdm(total=total_requests_to_make) as pbar:
+            for i in range(1, total_requests_to_make + 1):
+                url = f"https://www.codechef.com/api/rankings/{contest_code}"
+                params = {
+                    "itemsPerPage": 100,
+                    "order": "asc",
+                    "page": i,
+                    "sortBy": "rank",
+                }
+                response = requests.get(url, params=params, headers=headers)
+                response.raise_for_status()
+                data = response.json()['list']
+                total_data.extend(data)
+                pbar.update(1)
+            df = pd.read_json(json.dumps(total_data))
+    df = df[['rank', 'user_handle', 'score', 'total_time']]
+    df = df.sort_values(by='rank')
+    df.to_sql(f'codechef-{contest_code}', conn,
+              if_exists='replace', index=False)
+    students = pd.read_sql('select * from students', conn)
+    conn.close()
+    merged_df = pd.merge(df, students, left_on='user_handle',
+                         right_on='codechef_username', how='inner')
+    df = merged_df[merged_df['codechef_username'].notnull()]
+    df = df.drop('codechef_username', axis=1)
+    df.rename(columns={'user_handle': 'username'}, inplace=True)
+    return json.loads(df.to_json(orient='records'))
+
+
+@router.get("/contest/{contest_code}/full")
+async def get_full_contest_results(contest_code: str) -> List[FullContestResult]:
+    conn = connection()
+    try:
+        df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
+    except:
+        print(f"Fetching data for {contest_code}")
+        response = requests.get(
+            url=f'https://www.codechef.com/api/rankings/{contest_code}?itemsPerPage=100&order=asc&page=1&sortBy=rank', headers=headers)
+        if response.status_code != 200:
+            print("something went wrong")
+            exit()
+        if response.status_code == 404 or response.json()['availablePages'] == 0:
+            raise HTTPException(status_code=404, detail="Contest not found")
+        total_requests_to_make = response.json()['availablePages']
+        print(
+            f"Getting {total_requests_to_make} pages of data for {contest_code} with {response.json()['totalItems']} participants")
+        total_data = []
+        with tqdm(total=total_requests_to_make) as pbar:
+            for i in range(1, total_requests_to_make + 1):
+                url = f"https://www.codechef.com/api/rankings/{contest_code}"
+                params = {
+                    "itemsPerPage": 100,
+                    "order": "asc",
+                    "page": i,
+                    "sortBy": "rank",
+                }
+                response = requests.get(url, params=params, headers=headers)
+                response.raise_for_status()
+                data = response.json()['list']
+                total_data.extend(data)
+                pbar.update(1)
+            df = pd.read_json(json.dumps(total_data))
+    df = df[['rank', 'user_handle', 'score', 'total_time']]
+    df = df.sort_values(by='rank')
+    df.to_sql(f'codechef-{contest_code}', conn,
+              if_exists='replace', index=False)
+    conn.close()
+    df.rename(columns={'user_handle': 'username'}, inplace=True)
+    return json.loads(df.to_json(orient='records'))
+
+
+@router.get("/contest/{contest_code}/fast")
+async def get_contest_results_fast(contest_code: str) -> List[ContestResult]:
+    conn = connection()
+    try:
+        df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
+    except:
+        print(f"Fetching data for {contest_code}")
+        response = requests.get(
+            url=f'https://www.codechef.com/api/rankings/{contest_code}?itemsPerPage=100&order=asc&page=1&sortBy=rank', headers=headers)
+        if response.status_code != 200:
+            print("something went wrong")
+            exit()
+        if response.status_code == 404 or response.json()['availablePages'] == 0:
+            raise HTTPException(status_code=404, detail="Contest not found")
+        total_requests_to_make = response.json()['availablePages']
+        print(
+            f"Getting {total_requests_to_make} pages of data for {contest_code} with {response.json()['totalItems']} participants")
+        total_data = []
+        with tqdm(total=total_requests_to_make) as pbar:
+            results_queue = queue.Queue()
+            threads = []
+            for i in range(1, total_requests_to_make + 1):
+                thread = threading.Thread(target=make_request, args=(
+                    contest_code, i, headers, pbar, results_queue))
+                threads.append(thread)
+                thread.start()
+            for thread in threads:
+                thread.join()
+            while not results_queue.empty():
+                total_data.extend(results_queue.get())
+        df = pd.read_json(json.dumps(total_data))
+    df = df[['rank', 'user_handle', 'score', 'total_time']]
+    df = df.sort_values(by='rank')
+    df.to_sql(f'codechef-{contest_code}', conn,
+              if_exists='replace', index=False)
+    students = pd.read_sql('select * from students', conn)
+    conn.close()
+    merged_df = pd.merge(df, students, left_on='user_handle',
+                         right_on='codechef_username', how='inner')
+    df = merged_df[merged_df['codechef_username'].notnull()]
+    df = df.drop('codechef_username', axis=1)
+    df.rename(columns={'user_handle': 'username'}, inplace=True)
+    return json.loads(df.to_json(orient='records'))
+
+
+@router.get("/contest/{contest_code}/fast/full")
+@router.get("/contest/{contest_code}/full/fast")
+async def get_full_contest_results_fast(contest_code: str) -> List[FullContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
@@ -62,15 +200,8 @@ async def get_contest(contest_code: str):
             while not results_queue.empty():
                 total_data.extend(results_queue.get())
         df = pd.read_json(json.dumps(total_data))
-    df = df[['rank', 'user_handle', 'score', 'total_time']]
     df = df.sort_values(by='rank')
     df.to_sql(f'codechef-{contest_code}', conn,
               if_exists='replace', index=False)
-    students = pd.read_sql('select * from students', conn)
-    conn.close()
-    merged_df = pd.merge(df, students, left_on='user_handle',
-                         right_on='codechef_username', how='inner')
-    df = merged_df[merged_df['codechef_username'].notnull()]
-    df = df.drop('codechef_username', axis=1)
     df.rename(columns={'user_handle': 'username'}, inplace=True)
     return json.loads(df.to_json(orient='records'))
