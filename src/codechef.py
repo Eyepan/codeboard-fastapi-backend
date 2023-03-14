@@ -1,14 +1,12 @@
-from fastapi import APIRouter, HTTPException
+import sqlite3
 import pandas as pd
 import requests
-from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
-from ..database import codechef_db, students_db
-from typing import List
-from ..models.models_codechef import CCContestResult, CCFullContestResult
+from tqdm import tqdm
 
 
-router = APIRouter(prefix='/api/codechef')
+def connection():
+    return sqlite3.connect('codechef.db')
 
 
 def make_request(contest_code, page_num, headers, pbar):
@@ -33,7 +31,7 @@ def download_codechef_contest_data(contest_code: str, division: str) -> pd.DataF
     }
     response = requests.get(
         url=f'https://www.codechef.com/api/rankings/{contest_code}{division}?itemsPerPage=100&order=asc&page=1&sortBy=rank', headers=headers)
-    if response.status_code != 200 or 'availablePages' not in response.json() or 'list' not in response.json():
+    if response.status_code != 200:
         print(f"No data found for {contest_code}{division}")
         return pd.DataFrame()
 
@@ -45,6 +43,7 @@ def download_codechef_contest_data(contest_code: str, division: str) -> pd.DataF
             1, total_requests_to_make + 1), [headers] * total_requests_to_make, [pbar] * total_requests_to_make)
         for result in results:
             total_data.extend(result)
+
     if not total_data:
         print(f"No data found for {contest_code}{division}")
         return pd.DataFrame()
@@ -56,62 +55,42 @@ def download_codechef_contest_data(contest_code: str, division: str) -> pd.DataF
     return df
 
 
-def read_codechef_contest(contest_code: str):
-    conn = codechef_db()
+def get_codechef_contest_rankings(contest_code: str):
+    conn = connection()
     try:
         codechef_contest_results = pd.read_sql(
             f'select * from "codechef-{contest_code}"', con=conn)
+        # codechef_contest_results = pd.read_csv(
+        # f'./codechef_csvs/codechef-{contest_code}.csv')
     except:
-        contests_with_divisions = ['START', 'COOK', 'LTIME', 'JAN', 'FEB',
-                                   'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-        for c in contests_with_divisions:
-            if c in contest_code:
-                dfa = download_codechef_contest_data(contest_code, 'A')
-                if dfa.empty:
-                    raise HTTPException(404, f"{contest_code} not found")
-                dfb = download_codechef_contest_data(contest_code, 'B')
-                dfc = download_codechef_contest_data(contest_code, 'C')
-                dfd = download_codechef_contest_data(contest_code, 'D')
-                codechef_contest_results = pd.concat([dfa, dfb, dfc, dfd])
-                break
-        else:
-            codechef_contest_results = download_codechef_contest_data(
-                contest_code, '')
+        codechef_contest_results = pd.concat([
+            download_codechef_contest_data(contest_code, 'A'),
+            download_codechef_contest_data(contest_code, 'B'),
+            download_codechef_contest_data(contest_code, 'C'),
+            download_codechef_contest_data(contest_code, 'D'),
+        ])
         codechef_contest_results.to_sql(
             f'codechef-{contest_code}', con=conn, if_exists='replace', index=False)
-    return codechef_contest_results
+        # codechef_contest_results.to_csv(
+        # f'./codechef_csvs/codechef-{contest_code}.csv', index=False)
 
-
-@router.get("/{contest_code}")
-def get_codechef_contest_rankings(contest_code: str) -> List[CCContestResult]:
-    codechef_contest_results = read_codechef_contest(contest_code)
-    conn = students_db()
-    students = pd.read_sql('select * from students', conn)
-    conn.close()
-    merged_df = pd.merge(codechef_contest_results, students,
-                         left_on='user_handle', right_on='codechef_username', how='inner')
-    df = merged_df[merged_df['codechef_username'].notnull()]
-    df = df.drop('codechef_username', axis=1)
-    return df.to_dict('records')
-
-
-@router.get("/{contest_code}/full")
-def get_codechef_contest_rankings(contest_code: str) -> List[CCFullContestResult]:
-    codechef_contest_results = read_codechef_contest(contest_code)
     return codechef_contest_results.to_dict('records')
 
 
 def get_codechef_contest_rankings_of_division(contest_code: str, division: str):
-    conn = codechef_db()
+    conn = connection()
     try:
         codechef_contest_results = pd.read_sql(
             f'select * from "codechef-{contest_code}"', con=conn)
+        # codechef_contest_results = pd.read_csv(
+        # f'./codechef_csvs/codechef-{contest_code}.csv')
     except:
         codechef_contest_results = download_codechef_contest_data(
             contest_code, division)
 
     codechef_contest_results = codechef_contest_results[
         codechef_contest_results['division'] == division]
+
     return codechef_contest_results.to_dict('records')
 
 

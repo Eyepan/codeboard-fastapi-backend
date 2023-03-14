@@ -1,12 +1,20 @@
 import sqlite3
 
 
-def connection():
-    return sqlite3.connect('db.sqlite3')
+def students_db():
+    return sqlite3.connect("./databases/students.db")
 
 
-def initDB():
-    conn = connection()
+def leetcode_db():
+    return sqlite3.connect("./databases/leetcode.db")
+
+
+def codechef_db():
+    return sqlite3.connect("./databases/codechef.db")
+
+
+def init_students_db():
+    conn = students_db()
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS students(
         id TEXT PRIMARY KEY NOT NULL, 
@@ -19,6 +27,3 @@ def initDB():
     )""")
     conn.commit()
     conn.close()
-
-
-initDB()
