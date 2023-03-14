@@ -8,7 +8,7 @@ import requests
 from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
 
-from ..models.models_leetcode import ContestResult, FullContestResult
+from ..models.models_codechef import CCContestResult, CCFullContestResult
 
 from ..database import connection
 
@@ -36,7 +36,7 @@ def make_request(contest_code, i, headers, pbar, results_queue):
 
 
 @router.get("/contest/{contest_code}")
-async def get_contest_results(contest_code: str) -> List[ContestResult]:
+async def get_contest_results(contest_code: str) -> List[CCContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
@@ -68,7 +68,7 @@ async def get_contest_results(contest_code: str) -> List[ContestResult]:
                 total_data.extend(data)
                 pbar.update(1)
             df = pd.read_json(json.dumps(total_data))
-    df = df[['rank', 'user_handle', 'score', 'total_time']]
+    df = df[['rank', 'user_handle', 'score', 'total_time', 'division']]
     df = df.sort_values(by='rank')
     df.to_sql(f'codechef-{contest_code}', conn,
               if_exists='replace', index=False)
@@ -79,11 +79,14 @@ async def get_contest_results(contest_code: str) -> List[ContestResult]:
     df = merged_df[merged_df['codechef_username'].notnull()]
     df = df.drop('codechef_username', axis=1)
     df.rename(columns={'user_handle': 'username'}, inplace=True)
+    # write the json loads somewhere
+    with open("something.json", 'w') as f:
+        json.dump(json.loads(df.to_json(orient='records')), f)
     return json.loads(df.to_json(orient='records'))
 
 
 @router.get("/contest/{contest_code}/full")
-async def get_full_contest_results(contest_code: str) -> List[FullContestResult]:
+async def get_full_contest_results(contest_code: str) -> List[CCFullContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
@@ -125,7 +128,7 @@ async def get_full_contest_results(contest_code: str) -> List[FullContestResult]
 
 
 @router.get("/contest/{contest_code}/fast")
-async def get_contest_results_fast(contest_code: str) -> List[ContestResult]:
+async def get_contest_results_fast(contest_code: str) -> List[CCContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)
@@ -171,7 +174,7 @@ async def get_contest_results_fast(contest_code: str) -> List[ContestResult]:
 
 @router.get("/contest/{contest_code}/fast/full")
 @router.get("/contest/{contest_code}/full/fast")
-async def get_full_contest_results_fast(contest_code: str) -> List[FullContestResult]:
+async def get_full_contest_results_fast(contest_code: str) -> List[CCFullContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "codechef-{contest_code}"', conn)

@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
 
 from ..database import connection
-from ..models.models_leetcode import ContestResult, FullContestResult, StudentLeetCodeData
+from ..models.models_leetcode import LCContestResult, LCFullContestResult, StudentLeetCodeData
 
 router = APIRouter(prefix='/api/leetcode')
 
@@ -28,7 +28,7 @@ def make_request(contest_code, i, pbar, results_queue):
 
 
 @router.get("/contest/{contest_code}")
-async def get_contest_results(contest_code: str) -> List[ContestResult]:
+async def get_contest_results(contest_code: str) -> List[LCContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
@@ -75,7 +75,7 @@ async def get_contest_results(contest_code: str) -> List[ContestResult]:
 
 
 @router.get("/contest/{contest_code}/fast")
-async def get_contest_results_fast(contest_code: str) -> List[ContestResult]:
+async def get_contest_results_fast(contest_code: str) -> List[LCContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
@@ -118,7 +118,7 @@ async def get_contest_results_fast(contest_code: str) -> List[ContestResult]:
 
 
 @router.get("/contest/{contest_code}/full")
-async def get_full_contest_results(contest_code: str) -> List[FullContestResult]:
+async def get_full_contest_results(contest_code: str) -> List[LCFullContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)
@@ -156,7 +156,7 @@ async def get_full_contest_results(contest_code: str) -> List[FullContestResult]
 
 @router.get("/contest/{contest_code}/full/fast")
 @router.get("/contest/{contest_code}/fast/full")
-async def get_full_contest_results_fast(contest_code: str) -> List[FullContestResult]:
+async def get_full_contest_results_fast(contest_code: str) -> List[LCFullContestResult]:
     conn = connection()
     try:
         df = pd.read_sql(f'select * from "leetcode-{contest_code}"', conn)

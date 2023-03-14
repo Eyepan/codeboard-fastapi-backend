@@ -34,7 +34,7 @@ class StudentLeetCodeData(BaseModel):
     # df = df[['username', 'rank', 'score', 'finish_time']]
 
 
-class ContestResult(BaseModel):
+class LCContestResult(BaseModel):
     username: str
     rank: int
     score: int
@@ -45,7 +45,7 @@ class ContestResult(BaseModel):
     codeforces_username: str
 
 
-class FullContestResult(BaseModel):
+class LCFullContestResult(BaseModel):
     username: str
     rank: int
     score: int

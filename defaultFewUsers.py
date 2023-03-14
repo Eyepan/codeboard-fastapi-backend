@@ -43,7 +43,7 @@ data = [
                      "user8425Qa", "madhoora_codechef", "madhoora_codeforces")
 ]
 
-url = "https://codeboard-fastapi-backend-production.up.railway.app/api/students"
+url = "http://localhost:8000/api/students"
 success = True
 
 
