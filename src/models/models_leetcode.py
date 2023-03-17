@@ -60,8 +60,6 @@ class StudentLeetcode(BaseModel):
     def get_student_leetcode(self):
         return super().__dict__
 
-        # df = df[['username', 'rank', 'score', 'finish_time']]
-
 
 class LCContestResult(BaseModel):
     username: str
