@@ -7,7 +7,7 @@ import requests
 from fastapi import APIRouter, HTTPException
 from tqdm import tqdm
 
-from ..models.models_leetcode import LCContestResult, LCFullContestResult, StudentLeetCodeData
+from ..models.models_leetcode import LCContestResult, LCFullContestResult, StudentLeetcode
 
 router = APIRouter(prefix='/api/leetcode')
 
@@ -77,7 +77,7 @@ async def get_all_leetcode_contest_ratings(contest_code: str) -> List[LCFullCont
 
 
 @router.get("/user/{username}")
-async def get_user(username: str) -> StudentLeetCodeData:
+async def get_user(username: str):
     data = {
         "query": """
             query APIReq($username: String!) {
@@ -114,4 +114,16 @@ async def get_user(username: str) -> StudentLeetCodeData:
         raise HTTPException(
             404, f"Student {username} doesn't exist on leetcode")
     response.raise_for_status()
-    return response.json()['data']
+    data = response.json()['data']
+    return StudentLeetcode(
+        data['matchedUser']['username'],
+        data['matchedUser']['profile']['ranking'],
+        data['allQuestionsCount'][0]['count'],
+        data['matchedUser']['submitStatsGlobal']['acSubmissionNum'][0]['count'],
+        data['allQuestionsCount'][1]['count'],
+        data['matchedUser']['submitStatsGlobal']['acSubmissionNum'][1]['count'],
+        data['allQuestionsCount'][2]['count'],
+        data['matchedUser']['submitStatsGlobal']['acSubmissionNum'][2]['count'],
+        data['allQuestionsCount'][3]['count'],
+        data['matchedUser']['submitStatsGlobal']['acSubmissionNum'][3]['count'],
+    ).get_student_leetcode()

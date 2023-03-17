@@ -31,7 +31,36 @@ class StudentLeetCodeData(BaseModel):
     allQuestionsCount: List[ProblemsCount]
     matchedUser: MatchedUser
 
-    # df = df[['username', 'rank', 'score', 'finish_time']]
+
+class StudentLeetcode(BaseModel):
+    username: str
+    ranking: int
+    totalQuestionsCount: int
+    totalQuestionsSolved: int
+    easyQuestionsCount: int
+    easyQuestionsSolved: int
+    mediumQuestionsCount: int
+    mediumQuestionsSolved: int
+    hardQuestionsCount: int
+    hardQuestionsSolved: int
+
+    def __init__(self, u, r, tqc, tqs, eqc, eqs, mqc, mqs, hqc, hqs):
+        super().__init__(
+            username=u,
+            ranking=r,
+            totalQuestionsCount=tqc,
+            totalQuestionsSolved=tqs,
+            easyQuestionsCount=eqc,
+            easyQuestionsSolved=eqs,
+            mediumQuestionsCount=mqc,
+            mediumQuestionsSolved=mqs,
+            hardQuestionsCount=hqc,
+            hardQuestionsSolved=hqs)
+
+    def get_student_leetcode(self):
+        return super().__dict__
+
+        # df = df[['username', 'rank', 'score', 'finish_time']]
 
 
 class LCContestResult(BaseModel):

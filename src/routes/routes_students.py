@@ -60,11 +60,17 @@ async def post_student(student: InStudent):
 
 
 @router.put("")
-async def put_student(student: Student):
+async def update_student(student: Student):
     conn = students_db()
-    df = pd.DataFrame(student.get_student(), index=[0])
-    df.to_sql('students', conn, if_exists='replace', index=False)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM students WHERE id = ?', (student.id,))
+    if cursor.fetchone() is None:
+        raise HTTPException(status_code=400, detail="Student doesn't exist")
+    cursor.execute('UPDATE students SET name = ?, dept = ?, batch = ?, leetcode_username = ?, codechef_username = ?, codeforces_username = ? WHERE id = ?', (
+        student.name, student.dept, student.batch, student.leetcode_username, student.codechef_username, student.codeforces_username, student.id))
+    conn.commit()
     conn.close()
+    return student
 
 
 @router.delete("")
