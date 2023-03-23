@@ -1,14 +1,14 @@
 import time
 import threading
+import schedule
+import uvicorn
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from src.database import init_students_db
 from src.routes.routes_students import router as students_router
 from src.routes.routes_students import load_leetcode_data
 from src.routes.routes_leetcode import router as leetcode_router
 from src.routes.routes_codechef import router as codechef_router
-import schedule
-import uvicorn
 
 app = FastAPI()
 
