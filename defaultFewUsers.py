@@ -34,16 +34,7 @@ def generate_student(name: str, dept: str, batch: str, leetcode_username: str, c
     }
 
 
-data = [
-    generate_student("Iyappan", "CSE", "2024",
-                     "pan-iyappan", "iamteoggy", "Eyepan"),
-    generate_student("Mathesh A", "CSE", " 2024", "Mathesh_2002",
-                     "mathesh_codechef", "mathesh_codeforces"),
-    generate_student("Madhoora Mohan S", "IT", "2024",
-                     "user8425Qa", "madhoora_codechef", "madhoora_codeforces")
-]
-
-url = "https://codeboard-fastapi-backend-production.up.railway.app/api/students"
+url = "http://127.0.0.1:8000/api/students"
 success = True
 
 
@@ -55,6 +46,14 @@ def send_request(data):
         print(f"INSERT FAILED FOR {data}")
     print(response.status_code, response.json())
 
+
+data = [generate_student('Iyappan', 'CSE', '2024',
+                         'pan-iyappan', 'iamteoggy', 'Eyepan'),
+        generate_student('Yogan Gopi', 'CSE', '2024',
+                         'yogan_gopi', 'yogan_gopi', 'yogan_gopi'),
+        generate_student('Madhoora Mohan', 'IT', '2024',
+                         'user8425Qa', 'madhooramohan', '')
+        ]
 
 if __name__ == "__main__":
     max_threads = 1000

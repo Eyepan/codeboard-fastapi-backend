@@ -1,4 +1,11 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import json
 import sqlite3
+import time
+from turtle import pd
+
+import requests
+from tqdm import tqdm
 
 
 def students_db():
@@ -21,9 +28,9 @@ def init_students_db():
         name TEXT NOT NULL, 
         dept TEXT NOT NULL, 
         batch INTEGER NOT NULL, 
-        leetcode_username TEXT UNIQUE NOT NULL, 
-        codechef_username TEXT UNIQUE NOT NULL, 
-        codeforces_username TEXT UNIQUE NOT NULL
+        leetcode_username TEXT NOT NULL, 
+        codechef_username TEXT NOT NULL, 
+        codeforces_username TEXT NOT NULL
     )""")
     conn.commit()
     conn.close()
